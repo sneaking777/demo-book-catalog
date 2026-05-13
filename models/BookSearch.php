@@ -8,21 +8,21 @@ use yii\base\Model;
 use yii\data\ActiveDataProvider;
 
 /**
- * Поисковая модель для {@see Author}.
+ * Поисковая модель для {@see Book}.
  *
- * Используется в `AuthorController::actionIndex()` для фильтрации
- * списка авторов по значениям формы поиска в GridView.
+ * Используется в `BookController::actionIndex()` для фильтрации
+ * списка книг по значениям формы поиска в GridView.
  *
- * Наследуется от Author, чтобы автоматически получить набор атрибутов;
+ * Наследуется от Book, чтобы автоматически получить набор атрибутов;
  * собственные правила валидации в {@see rules()} помечают поля как
  * `safe` (можно массово присваивать через `load()`), а строгие правила
  * родителя игнорируются за счёт переопределения {@see scenarios()}.
  *
  * @package app\models
  *
- * @extends Author
+ * @extends Book
  */
-class AuthorSearch extends Author
+class BookSearch extends Book
 {
     /**
      * Возвращает правила валидации для атрибутов формы поиска.
@@ -32,14 +32,14 @@ class AuthorSearch extends Author
     public function rules(): array
     {
         return [
-            [['id', 'created_at', 'updated_at'], 'integer'],
-            [['last_name', 'first_name', 'middle_name'], 'safe'],
+            [['id', 'year', 'created_at', 'updated_at'], 'integer'],
+            [['title', 'description', 'isbn', 'cover_image'], 'safe'],
         ];
     }
 
     /**
      * Сбрасывает сценарии родительской модели, чтобы поля можно было
-     * массово присваивать без срабатывания строгих правил Author.
+     * массово присваивать без срабатывания строгих правил Book.
      *
      * @return array<string, array<int, string>>
      */
@@ -59,7 +59,7 @@ class AuthorSearch extends Author
      */
     public function search(array $params, ?string $formName = null): ActiveDataProvider
     {
-        $query = Author::find();
+        $query = Book::find();
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
@@ -73,13 +73,15 @@ class AuthorSearch extends Author
 
         $query->andFilterWhere([
             'id' => $this->id,
+            'year' => $this->year,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
         ]);
 
-        $query->andFilterWhere(['like', 'last_name', $this->last_name])
-            ->andFilterWhere(['like', 'first_name', $this->first_name])
-            ->andFilterWhere(['like', 'middle_name', $this->middle_name]);
+        $query->andFilterWhere(['like', 'title', $this->title])
+            ->andFilterWhere(['like', 'description', $this->description])
+            ->andFilterWhere(['like', 'isbn', $this->isbn])
+            ->andFilterWhere(['like', 'cover_image', $this->cover_image]);
 
         return $dataProvider;
     }

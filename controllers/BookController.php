@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace app\controllers;
 
-use app\models\Author;
-use app\models\AuthorSearch;
+use app\models\Book;
+use app\models\BookSearch;
 use Throwable;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
@@ -15,7 +15,7 @@ use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
 /**
- * Контроллер CRUD-операций над сущностью «Автор».
+ * Контроллер CRUD-операций над сущностью «Книга».
  *
  * Просмотр (index/view) доступен всем пользователям, включая гостей.
  * Авторизация на редактирование/удаление будет навешена отдельно
@@ -27,7 +27,7 @@ use yii\web\Response;
  *
  * @noinspection PhpUnused — инстанцируется Yii-роутером по имени из URL
  */
-class AuthorController extends Controller
+class BookController extends Controller
 {
     /**
      * Возвращает список поведений контроллера.
@@ -53,7 +53,7 @@ class AuthorController extends Controller
     }
 
     /**
-     * Выводит список авторов с поиском и пагинацией.
+     * Выводит список книг с поиском и пагинацией.
      *
      * @return string HTML страницы со списком.
      *
@@ -61,7 +61,7 @@ class AuthorController extends Controller
      */
     public function actionIndex(): string
     {
-        $searchModel = new AuthorSearch();
+        $searchModel = new BookSearch();
         $dataProvider = $searchModel->search($this->request->queryParams);
 
         return $this->render('index', [
@@ -71,13 +71,13 @@ class AuthorController extends Controller
     }
 
     /**
-     * Отображает карточку одного автора.
+     * Отображает карточку одной книги.
      *
-     * @param int $id Идентификатор автора.
+     * @param int $id Идентификатор книги.
      *
      * @return string HTML карточки.
      *
-     * @throws NotFoundHttpException Если автор с таким id не найден.
+     * @throws NotFoundHttpException Если книга с таким id не найдена.
      *
      * @noinspection PhpUnused — вызывается Yii-роутером по имени экшена
      */
@@ -89,7 +89,7 @@ class AuthorController extends Controller
     }
 
     /**
-     * Создаёт нового автора. При успешном сохранении делает редирект
+     * Создаёт новую книгу. При успешном сохранении делает редирект
      * на страницу просмотра.
      *
      * @return Response|string Response при успешном сохранении, HTML формы — иначе.
@@ -100,7 +100,7 @@ class AuthorController extends Controller
      */
     public function actionCreate(): Response|string
     {
-        $model = new Author();
+        $model = new Book();
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
@@ -116,14 +116,14 @@ class AuthorController extends Controller
     }
 
     /**
-     * Обновляет данные существующего автора. При успешном сохранении
+     * Обновляет данные существующей книги. При успешном сохранении
      * делает редирект на страницу просмотра.
      *
-     * @param int $id Идентификатор автора.
+     * @param int $id Идентификатор книги.
      *
      * @return Response|string Response при успешном сохранении, HTML формы — иначе.
      *
-     * @throws NotFoundHttpException Если автор с таким id не найден.
+     * @throws NotFoundHttpException Если книга с таким id не найдена.
      * @throws Exception При сбое уровня БД во время сохранения.
      *
      * @noinspection PhpUnused — вызывается Yii-роутером по имени экшена
@@ -142,16 +142,16 @@ class AuthorController extends Controller
     }
 
     /**
-     * Удаляет автора и делает редирект на список.
+     * Удаляет книгу и делает редирект на список.
      *
      * Принимает только POST-запросы (см. {@see behaviors()}). Связанные
-     * `book_authors` и `subscriptions` удаляются каскадно на уровне БД.
+     * `book_authors` удаляются каскадно на уровне БД.
      *
-     * @param int $id Идентификатор автора.
+     * @param int $id Идентификатор книги.
      *
      * @return Response Редирект на index.
      *
-     * @throws NotFoundHttpException Если автор с таким id не найден.
+     * @throws NotFoundHttpException Если книга с таким id не найдена.
      * @throws StaleObjectException Если запись была изменена в параллельной транзакции (актуально при оптимистичной блокировке).
      * @throws Throwable Прочие сбои уровня БД при удалении.
      *
@@ -165,17 +165,17 @@ class AuthorController extends Controller
     }
 
     /**
-     * Находит автора по id или бросает 404.
+     * Находит книгу по id или бросает 404.
      *
-     * @param int $id Идентификатор автора.
+     * @param int $id Идентификатор книги.
      *
-     * @return Author Найденная модель.
+     * @return Book Найденная модель.
      *
-     * @throws NotFoundHttpException Если автор с таким id не найден.
+     * @throws NotFoundHttpException Если книга с таким id не найдена.
      */
-    protected function findModel(int $id): Author
+    protected function findModel(int $id): Book
     {
-        if (($model = Author::findOne(['id' => $id])) !== null) {
+        if (($model = Book::findOne(['id' => $id])) !== null) {
             return $model;
         }
 
