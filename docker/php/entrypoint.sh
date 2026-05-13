@@ -10,7 +10,7 @@ done
 
 echo "[entrypoint] MySQL доступен"
 
-mkdir -p runtime web/assets web/uploads
+mkdir -p runtime web/assets web/uploads/covers
 chown -R www-data:www-data runtime web/assets web/uploads
 chmod -R ug+rwX runtime web/assets web/uploads
 

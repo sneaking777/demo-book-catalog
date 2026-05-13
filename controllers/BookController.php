@@ -7,6 +7,7 @@ namespace app\controllers;
 use app\models\Book;
 use app\models\BookSearch;
 use Throwable;
+use Yii;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
@@ -140,14 +141,29 @@ class BookController extends Controller
      * @throws NotFoundHttpException Если книга с таким id не найдена.
      * @throws Exception При сбое уровня БД во время сохранения.
      *
+     * При параллельном редактировании другим пользователем
+     * {@see StaleObjectException} перехватывается локально и
+     * пользователю показывается flash-сообщение с редиректом на форму.
+     *
      * @noinspection PhpUnused — вызывается Yii-роутером по имени экшена
      */
     public function actionUpdate(int $id): Response|string
     {
         $model = $this->findModel($id);
 
-        if ($this->request->isPost && $model->load($this->request->post()) && $model->save()) {
-            return $this->redirect(['view', 'id' => $model->id]);
+        if ($this->request->isPost && $model->load($this->request->post())) {
+            try {
+                if ($model->save()) {
+                    return $this->redirect(['view', 'id' => $model->id]);
+                }
+            } catch (StaleObjectException) {
+                Yii::$app->session->setFlash(
+                    'error',
+                    'Эту книгу одновременно редактировал другой пользователь. '
+                    . 'Открытая у вас форма устарела — перечитайте актуальные данные и попробуйте снова.',
+                );
+                return $this->redirect(['update', 'id' => $id]);
+            }
         }
 
         return $this->render('update', [

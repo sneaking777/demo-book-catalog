@@ -2,6 +2,7 @@
 
 /** @noinspection PhpUnhandledExceptionInspection — исключения из шаблонов обрабатывает yii\web\ErrorHandler */
 
+use app\models\Book;
 use yii\helpers\Html;
 use yii\web\YiiAsset;
 use yii\widgets\DetailView;
@@ -39,12 +40,22 @@ YiiAsset::register($this);
             'year',
             'description:ntext',
             'isbn',
-            'cover_image',
+            [
+                'label' => 'Обложка',
+                'format' => 'raw',
+                'value' => static fn (Book $b) => $b->coverUrl !== null
+                    ? Html::img($b->coverUrl, [
+                        'alt' => $b->title,
+                        'style' => 'max-height: 240px;',
+                        'class' => 'img-thumbnail',
+                    ])
+                    : '<span class="text-body-secondary">нет</span>',
+            ],
             [
                 'label' => 'Авторы',
-                'value' => static fn ($m) => implode(', ', array_map(
+                'value' => static fn (Book $b) => implode(', ', array_map(
                     static fn ($a) => $a->fullName,
-                    $m->authors,
+                    $b->authors,
                 )),
             ],
             [
