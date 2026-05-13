@@ -34,7 +34,14 @@ $this->params['breadcrumbs'][] = $this->title;
             'id',
             'title',
             'year',
-            'description:ntext',
+            [
+                'label' => 'Авторы',
+                'format' => 'raw',
+                'value' => static fn (Book $book) => Html::encode(implode(', ', array_map(
+                    static fn ($a) => $a->fullName,
+                    $book->authors,
+                ))),
+            ],
             'isbn',
             [
                 'class' => ActionColumn::class,

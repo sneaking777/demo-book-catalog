@@ -3,6 +3,7 @@
 /** @noinspection PhpUnhandledExceptionInspection — исключения из шаблонов обрабатывает yii\web\ErrorHandler */
 
 use yii\helpers\Html;
+use yii\web\YiiAsset;
 use yii\widgets\DetailView;
 
 /** @var yii\web\View $this */
@@ -11,7 +12,7 @@ use yii\widgets\DetailView;
 $this->title = $model->title;
 $this->params['breadcrumbs'][] = ['label' => 'Книги', 'url' => ['index']];
 $this->params['breadcrumbs'][] = $this->title;
-\yii\web\YiiAsset::register($this);
+YiiAsset::register($this);
 ?>
 <div class="book-view">
 
@@ -39,6 +40,13 @@ $this->params['breadcrumbs'][] = $this->title;
             'description:ntext',
             'isbn',
             'cover_image',
+            [
+                'label' => 'Авторы',
+                'value' => static fn ($m) => implode(', ', array_map(
+                    static fn ($a) => $a->fullName,
+                    $m->authors,
+                )),
+            ],
             [
                 'attribute' => 'created_at',
                 'format' => ['datetime', 'php:d.m.Y H:i'],
