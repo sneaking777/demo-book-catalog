@@ -65,6 +65,36 @@ class Subscription extends ActiveRecord
     }
 
     /**
+     * Перед валидацией приводит номер телефона к формату E.164.
+     *
+     * Принимаются распространённые в России форматы: `+7 (912) 345-67-89`,
+     * `8 912 345 67 89`, `89123456789`, `+79123456789` — всё нормализуется
+     * к `+79123456789`. Иностранные номера с `+` сохраняют свой код страны.
+     * Прочие варианты (например, голые 10 цифр без префикса) валидатор
+     * `match` далее отклонит.
+     *
+     * @return bool Можно ли продолжать валидацию.
+     */
+    public function beforeValidate(): bool
+    {
+        if (!parent::beforeValidate()) {
+            return false;
+        }
+
+        if (is_string($this->phone) && $this->phone !== '') {
+            $digits = preg_replace('/\D+/', '', $this->phone);
+
+            if (is_string($digits) && preg_match('/^[78](\d{10})$/', $digits, $m) === 1) {
+                $this->phone = '+7' . $m[1];
+            } elseif (str_starts_with($this->phone, '+') && is_string($digits)) {
+                $this->phone = '+' . $digits;
+            }
+        }
+
+        return true;
+    }
+
+    /**
      * Возвращает правила валидации атрибутов модели.
      *
      * @return array<int, array<int|string, mixed>>

@@ -32,7 +32,25 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
-            'title',
+            [
+                'label' => 'Обложка',
+                'format' => 'raw',
+                'filter' => false,
+                'value' => static fn (Book $book) => $book->coverUrl !== null
+                    ? Html::img($book->coverUrl, [
+                        'alt' => $book->title,
+                        'style' => 'max-height: 60px;',
+                    ])
+                    : '',
+            ],
+            [
+                'attribute' => 'title',
+                'format' => 'raw',
+                'value' => static fn (Book $book) => Html::a(
+                    Html::encode($book->title),
+                    ['view', 'id' => $book->id],
+                ),
+            ],
             'year',
             [
                 'label' => 'Авторы',
@@ -46,10 +64,8 @@ $this->params['breadcrumbs'][] = $this->title;
             [
                 'class' => ActionColumn::class,
                 'header' => 'Действия',
-                'visibleButtons' => [
-                    'update' => !Yii::$app->user->isGuest,
-                    'delete' => !Yii::$app->user->isGuest,
-                ],
+                'template' => '{update} {delete}',
+                'visible' => !Yii::$app->user->isGuest,
                 'urlCreator' => function ($action, Book $model) {
                     return Url::toRoute([$action, 'id' => $model->id]);
                 },

@@ -32,7 +32,14 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
 
             'id',
-            'last_name',
+            [
+                'attribute' => 'last_name',
+                'format' => 'raw',
+                'value' => static fn (Author $author) => Html::a(
+                    Html::encode($author->last_name),
+                    ['view', 'id' => $author->id],
+                ),
+            ],
             'first_name',
             'middle_name',
             [
@@ -40,12 +47,19 @@ $this->params['breadcrumbs'][] = $this->title;
                 'format' => ['datetime', 'php:d.m.Y H:i'],
             ],
             [
+                'label' => 'Подписка',
+                'format' => 'raw',
+                'value' => static fn (Author $author) => Html::a(
+                    'Подписаться',
+                    ['view', 'id' => $author->id, '#' => 'subscribe'],
+                    ['class' => 'btn btn-sm btn-outline-primary'],
+                ),
+            ],
+            [
                 'class' => ActionColumn::class,
                 'header' => 'Действия',
-                'visibleButtons' => [
-                    'update' => !Yii::$app->user->isGuest,
-                    'delete' => !Yii::$app->user->isGuest,
-                ],
+                'template' => '{update} {delete}',
+                'visible' => !Yii::$app->user->isGuest,
                 'urlCreator' => function ($action, Author $model) {
                     return Url::toRoute([$action, 'id' => $model->id]);
                 },

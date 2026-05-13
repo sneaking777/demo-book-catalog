@@ -1,0 +1,92 @@
+<?php
+
+declare(strict_types=1);
+
+namespace app\controllers;
+
+use app\models\Subscription;
+use Yii;
+use yii\db\Exception;
+use yii\filters\VerbFilter;
+use yii\web\Controller;
+use yii\web\Response;
+
+/**
+ * Контроллер подписок гостей на новые книги конкретного автора.
+ *
+ * Доступен всем пользователям (включая гостей), задача явно описывает
+ * оформление подписки именно гостем. Поведение единое: один POST-экшен
+ * с PRG-редиректом на карточку автора и flash-сообщением о результате.
+ *
+ * @package app\controllers
+ *
+ * @extends Controller
+ *
+ * @noinspection PhpUnused — инстанцируется Yii-роутером по имени из URL
+ */
+class SubscriptionController extends Controller
+{
+    /**
+     * Возвращает список поведений контроллера.
+     *
+     * `VerbFilter` ограничивает оформление подписки методом POST,
+     * чтобы её нельзя было создать обычной ссылкой/GET-запросом.
+     *
+     * @return array<string, mixed>
+     */
+    public function behaviors(): array
+    {
+        return array_merge(
+            parent::behaviors(),
+            [
+                'verbs' => [
+                    'class' => VerbFilter::class,
+                    'actions' => [
+                        'create' => ['POST'],
+                    ],
+                ],
+            ],
+        );
+    }
+
+    /**
+     * Оформляет подписку гостя на автора. Поля приходят из формы
+     * на карточке автора: `Subscription[author_id]` и `Subscription[phone]`.
+     *
+     * Использует Post/Redirect/Get: при любом исходе делает редирект
+     * на карточку автора с flash-сообщением. Это упрощает рендеринг —
+     * страница автора всегда отрисовывается чистой, без застрявших
+     * данных формы в адресной строке.
+     *
+     * @return Response Редирект на карточку автора (или на список,
+     *                  если автор не был передан).
+     *
+     * @noinspection PhpUnused — вызывается Yii-роутером по имени экшена
+     * @throws Exception
+     */
+    public function actionCreate(): Response
+    {
+        $model = new Subscription();
+        $session = Yii::$app->session;
+
+        if (!$model->load(Yii::$app->request->post())) {
+            $session->setFlash('error', 'Не удалось обработать форму подписки.');
+            return $this->redirect(['/author/index']);
+        }
+
+        $authorId = $model->author_id;
+
+        if ($model->save()) {
+            $session->setFlash(
+                'success',
+                'Вы подписаны на новые книги этого автора. SMS придёт на указанный номер.',
+            );
+        } else {
+            $session->setFlash('error', implode(' ', $model->getFirstErrors()));
+        }
+
+        return $authorId > 0
+            ? $this->redirect(['/author/view', 'id' => $authorId])
+            : $this->redirect(['/author/index']);
+    }
+}
