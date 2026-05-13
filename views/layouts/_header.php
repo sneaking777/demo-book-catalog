@@ -24,6 +24,10 @@ $items = [
         'url' => ['/book/index'],
     ],
     [
+        'label' => 'Отчёт',
+        'url' => ['/report/top-authors'],
+    ],
+    [
         'label' => 'Войти',
         'url' => ['/site/login'],
         'visible' => Yii::$app->user->isGuest,

@@ -338,7 +338,7 @@ class Book extends ActiveRecord
         }
 
         if ($this->coverFile !== null) {
-            if (!$this->coverFile->saveAs($this->coverPath($this->cover_image))) {
+            if (!$this->coverFile->saveAs(self::coverPath($this->cover_image))) {
                 throw new RuntimeException('Не удалось сохранить файл обложки на диск.');
             }
 
@@ -377,22 +377,36 @@ class Book extends ActiveRecord
      */
     private function deleteCoverFile(string $filename): void
     {
-        $path = $this->coverPath($filename);
+        $path = self::coverPath($filename);
         if (is_file($path) && !@unlink($path)) {
             Yii::warning("Не удалось удалить файл обложки: $path", __METHOD__);
         }
     }
 
     /**
+     * Возвращает абсолютный путь к каталогу, в котором хранятся файлы обложек.
+     *
+     * @return string Абсолютный путь без завершающего слэша.
+     */
+    public static function coverDir(): string
+    {
+        return Yii::getAlias(self::COVER_PATH_ALIAS);
+    }
+
+    /**
      * Строит абсолютный путь к файлу обложки на диске.
+     *
+     * Public static, чтобы той же логикой могли пользоваться внешние
+     * утилиты — например, консольный сидер ({@see \app\commands\SeedController}) —
+     * и при изменении схемы хранения обложек не пришлось править два места.
      *
      * @param string $filename Имя файла внутри каталога обложек.
      *
      * @return string Абсолютный путь.
      */
-    private function coverPath(string $filename): string
+    public static function coverPath(string $filename): string
     {
-        return Yii::getAlias(self::COVER_PATH_ALIAS) . '/' . $filename;
+        return self::coverDir() . '/' . $filename;
     }
 
     /**
