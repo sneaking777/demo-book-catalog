@@ -9,43 +9,80 @@ use yii\base\Model;
 use yii\base\Security;
 
 /**
- * LoginForm is the model behind the login form.
+ * Модель формы входа в систему.
  *
- * @property-read User|null $user
+ * Не привязана к таблице БД (наследник {@see Model}, а не ActiveRecord).
+ * Принимает логин и пароль, валидирует пару через {@see validatePassword()},
+ * при успехе авторизует пользователя в компоненте `user`.
  *
+ * @property-read User|null $user Пользователь, найденный по введённому логину.
+ *
+ * @package app\models
+ *
+ * @extends Model
+ */
 class LoginForm extends Model
 {
+    /**
+     * Введённый логин.
+     */
     public string $username = '';
+
+    /**
+     * Введённый пароль (в открытом виде, не сохраняется).
+     */
     public string $password = '';
+
+    /**
+     * Запомнить пользователя на 30 дней.
+     */
     public bool $rememberMe = true;
+
+    /**
+     * Найденный пользователь (кэш для {@see getUser()}).
+     */
     private User|null $_user = null;
+
+    /**
+     * Флаг того, что поиск пользователя уже выполнялся
+     * (чтобы не дёргать БД повторно при `$_user === null`).
+     */
     private bool $_userLoaded = false;
-    public function __construct(private readonly Security $security, $config = [])
+
+    /**
+     * @param Security $security Компонент Yii для проверки хэша пароля.
+     * @param array<string, mixed> $config Конфигурация модели (передаётся в Model::__construct).
+     */
+    public function __construct(private readonly Security $security, array $config = [])
     {
         parent::__construct($config);
     }
 
     /**
-     * @return array the validation rules.
+     * Возвращает правила валидации атрибутов формы.
+     *
+     * @return array<int, array<int|string, mixed>>
      */
     public function rules(): array
     {
         return [
-            // username and password are both required
             [['username', 'password'], 'required'],
-            // rememberMe must be a boolean value
             ['rememberMe', 'boolean'],
-            // password is validated by validatePassword()
             ['password', 'validatePassword'],
         ];
     }
 
     /**
-     * Validates the password.
-     * This method serves as the inline validation for password.
+     * Инлайн-валидатор для пароля: проверяет, что пара логин/пароль
+     * соответствует существующему пользователю.
      *
-     * @param string $attribute the attribute currently being validated
-     * @param array $params the additional name-value pairs given in the rule
+     * @param string $attribute Имя проверяемого атрибута.
+     * @param array<string, mixed>|null $params Дополнительные параметры правила (не используются, но обязательны по контракту валидатора Yii).
+     *
+     * @return void
+     *
+     * @noinspection PhpUnused — вызывается Yii-валидатором по имени из rules()
+     * @noinspection PhpUnusedParameterInspection — параметр обязателен по контракту inline-валидатора
      */
     public function validatePassword(string $attribute, array|null $params): void
     {
@@ -53,14 +90,15 @@ class LoginForm extends Model
             $user = $this->getUser();
 
             if (!$user || !$this->security->validatePassword($this->password, $user->passwordHash)) {
-                $this->addError($attribute, 'Incorrect username or password.');
+                $this->addError($attribute, 'Неверный логин или пароль.');
             }
         }
     }
 
     /**
-     * Logs in a user using the provided username and password.
-     * @return bool whether the user is logged in successfully
+     * Выполняет вход в систему по введённым логину и паролю.
+     *
+     * @return bool true, если вход выполнен успешно.
      */
     public function login(): bool
     {
@@ -72,9 +110,12 @@ class LoginForm extends Model
     }
 
     /**
-     * Finds user by [[username]]
+     * Находит пользователя по введённому логину. Результат кэшируется
+     * в свойстве, чтобы повторные вызовы не дёргали БД.
      *
-     * @return User|null
+     * @return User|null Найденный пользователь или null, если такого нет.
+     *
+     * @noinspection PhpUnused — вызывается магически через Model::__get() как $loginForm->user
      */
     public function getUser(): User|null
     {

@@ -9,6 +9,7 @@ use app\models\AuthorSearch;
 use Throwable;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
+use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
@@ -32,6 +33,8 @@ class AuthorController extends Controller
     /**
      * Возвращает список поведений контроллера.
      *
+     * `AccessControl` пускает гостей только на просмотр (`index`, `view`);
+     * на создание/редактирование/удаление требуется аутентификация.
      * `VerbFilter` ограничивает удаление методом POST, чтобы случайные
      * GET-запросы (например, от поисковых ботов) не сносили записи.
      *
@@ -42,6 +45,17 @@ class AuthorController extends Controller
         return array_merge(
             parent::behaviors(),
             [
+                'access' => [
+                    'class' => AccessControl::class,
+                    'only' => ['create', 'update', 'delete'],
+                    'rules' => [
+                        [
+                            'allow' => true,
+                            'actions' => ['create', 'update', 'delete'],
+                            'roles' => ['@'],
+                        ],
+                    ],
+                ],
                 'verbs' => [
                     'class' => VerbFilter::class,
                     'actions' => [

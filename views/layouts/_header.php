@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpUnhandledExceptionInspection — исключения из шаблонов обрабатывает yii\web\ErrorHandler */
+
 declare(strict_types=1);
 
 /** @var yii\web\View $this */
@@ -10,24 +12,24 @@ use yii\helpers\Html;
 
 $items = [
     [
-        'label' => 'Home',
+        'label' => 'Главная',
         'url' => ['/site/index'],
     ],
     [
-        'label' => 'About',
-        'url' => ['/site/about'],
+        'label' => 'Авторы',
+        'url' => ['/author/index'],
     ],
     [
-        'label' => 'Contact',
-        'url' => ['/site/contact'],
+        'label' => 'Книги',
+        'url' => ['/book/index'],
     ],
     [
-        'label' => 'Login',
+        'label' => 'Войти',
         'url' => ['/site/login'],
         'visible' => Yii::$app->user->isGuest,
     ],
     [
-        'label' => 'Logout (' . Html::encode(Yii::$app->user->identity?->username ?? '') . ')',
+        'label' => 'Выйти (' . Html::encode(Yii::$app->user->identity?->username ?? '') . ')',
         'url' => ['/site/logout'],
         'linkOptions' => [
             'data-method' => 'post',

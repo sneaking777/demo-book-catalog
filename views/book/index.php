@@ -1,5 +1,7 @@
 <?php
 
+/** @noinspection PhpUnhandledExceptionInspection — исключения из шаблонов обрабатывает yii\web\ErrorHandler */
+
 use app\models\Book;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -10,18 +12,18 @@ use yii\grid\GridView;
 /** @var app\models\BookSearch $searchModel */
 /** @var yii\data\ActiveDataProvider $dataProvider */
 
-$this->title = 'Books';
+$this->title = 'Книги';
 $this->params['breadcrumbs'][] = $this->title;
 ?>
 <div class="book-index">
 
     <h1><?= Html::encode($this->title) ?></h1>
 
+    <?php if (!Yii::$app->user->isGuest): ?>
     <p>
-        <?= Html::a('Create Book', ['create'], ['class' => 'btn btn-success']) ?>
+        <?= Html::a('Добавить книгу', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
-
-    <?php // echo $this->render('_search', ['model' => $searchModel]); ?>
+    <?php endif; ?>
 
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
@@ -34,17 +36,18 @@ $this->params['breadcrumbs'][] = $this->title;
             'year',
             'description:ntext',
             'isbn',
-            //'cover_image',
-            //'created_at',
-            //'updated_at',
             [
-                'class' => ActionColumn::className(),
-                'urlCreator' => function ($action, Book $model, $key, $index, $column) {
+                'class' => ActionColumn::class,
+                'header' => 'Действия',
+                'visibleButtons' => [
+                    'update' => !Yii::$app->user->isGuest,
+                    'delete' => !Yii::$app->user->isGuest,
+                ],
+                'urlCreator' => function ($action, Book $model) {
                     return Url::toRoute([$action, 'id' => $model->id]);
-                 }
+                },
             ],
         ],
     ]); ?>
-
 
 </div>
