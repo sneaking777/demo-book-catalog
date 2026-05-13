@@ -1,14 +1,22 @@
 <?php
 
-return [
-    'class' => \yii\db\Connection::class,
-    'dsn' => 'mysql:host=localhost;dbname=yii2basic',
-    'username' => 'root',
-    'password' => '',
-    'charset' => 'utf8',
+use yii\db\Connection;
 
-    // Schema cache options (for production environment)
-    //'enableSchemaCache' => true,
-    //'schemaCacheDuration' => 60,
-    //'schemaCache' => 'cache',
+return [
+    'class' => Connection::class,
+    'dsn' => 'mysql:host=' . (getenv('DB_HOST') ?: 'db')
+        . ';port=' . (getenv('DB_PORT') ?: '3306')
+        . ';dbname=' . (getenv('DB_NAME') ?: 'book_catalog'),
+    'username' => getenv('DB_USER') ?: 'book_catalog',
+    'password' => getenv('DB_PASSWORD') ?: 'book_catalog',
+    'charset' => 'utf8mb4',
+
+    'enableSchemaCache' => YII_ENV_PROD,
+    'schemaCacheDuration' => 3600,
+    'schemaCache' => 'cache',
+
+    'attributes' => [
+        PDO::ATTR_EMULATE_PREPARES => false,
+    ],
+
 ];

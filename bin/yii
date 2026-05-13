@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# Обёртка над консолью Yii внутри контейнера app.
+# Запускает команду от пользователя www-data, чтобы файлы,
+# созданные генераторами (миграции, Gii), принадлежали пользователю хоста.
+#
+# Использование:
+#   ./bin/yii migrate/create create_book_table
+#   ./bin/yii migrate
+#   ./bin/yii gii/model --tableName=book
+
+set -euo pipefail
+
+exec docker compose exec --user www-data app php yii "$@"

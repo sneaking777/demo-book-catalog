@@ -1,5 +1,12 @@
 <?php
 
+use app\models\User;
+use yii\caching\FileCache;
+use yii\debug\Module;
+use yii\log\FileTarget;
+use yii\mail\MailerInterface;
+use yii\symfonymailer\Mailer;
+
 $params = require __DIR__ . '/params.php';
 $db = require __DIR__ . '/db.php';
 
@@ -9,8 +16,8 @@ $config = [
     'bootstrap' => ['log'],
     'container' => [
         'singletons' => [
-            \yii\mail\MailerInterface::class => [
-                'class' => \yii\symfonymailer\Mailer::class,
+            MailerInterface::class => [
+                'class' => Mailer::class,
                 // send all mails to a file by default.
                 'useFileTransport' => true,
                 'viewPath' => '@app/mail',
@@ -27,34 +34,32 @@ $config = [
             'cookieValidationKey' => 'AZ0ttaNlT5yut7kdgSagk5NFYR0zs5S6',
         ],
         'cache' => [
-            'class' => \yii\caching\FileCache::class,
+            'class' => FileCache::class,
         ],
         'user' => [
-            'identityClass' => \app\models\User::class,
+            'identityClass' => User::class,
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
             'errorAction' => 'site/error',
         ],
-        'mailer' => \yii\mail\MailerInterface::class,
+        'mailer' => MailerInterface::class,
         'log' => [
             'traceLevel' => YII_DEBUG ? 3 : 0,
             'targets' => [
                 [
-                    'class' => \yii\log\FileTarget::class,
+                    'class' => FileTarget::class,
                     'levels' => ['error', 'warning'],
                 ],
             ],
         ],
         'db' => $db,
-        /*
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
             ],
         ],
-        */
     ],
     'params' => $params,
 ];
@@ -63,16 +68,16 @@ if (YII_ENV_DEV) {
     // configuration adjustments for 'dev' environment
     $config['bootstrap'][] = 'debug';
     $config['modules']['debug'] = [
-        'class' => \yii\debug\Module::class,
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
+        'class' =>  Module::class,
+        // Разрешаем доступ из локальных и приватных подсетей (нужно для запросов изнутри docker-сети).
+        'allowedIPs' => ['127.0.0.1', '::1', '172.16.0.0/12', '192.168.0.0/16', '10.0.0.0/8'],
     ];
 
     $config['bootstrap'][] = 'gii';
     $config['modules']['gii'] = [
         'class' => \yii\gii\Module::class,
-        // uncomment the following to add your IP if you are not connecting from localhost.
-        //'allowedIPs' => ['127.0.0.1', '::1'],
+        // Разрешаем доступ из локальных и приватных подсетей (nginx-контейнер обращается к app через docker bridge).
+        'allowedIPs' => ['127.0.0.1', '::1', '172.16.0.0/12', '192.168.0.0/16', '10.0.0.0/8'],
     ];
 }
 
