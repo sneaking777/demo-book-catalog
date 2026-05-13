@@ -6,8 +6,11 @@ namespace app\controllers;
 
 use app\models\Book;
 use app\models\BookSearch;
+use app\services\NewBookNotifier;
+use app\services\SmsPilotClient;
 use Throwable;
 use Yii;
+use yii\base\InvalidConfigException;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
@@ -109,7 +112,7 @@ class BookController extends Controller
      *
      * @return Response|string Response при успешном сохранении, HTML формы — иначе.
      *
-     * @throws Exception При сбое уровня БД во время сохранения.
+     * @throws Exception|InvalidConfigException При сбое уровня БД во время сохранения.
      *
      * @noinspection PhpUnused — вызывается Yii-роутером по имени экшена
      */
@@ -119,6 +122,8 @@ class BookController extends Controller
 
         if ($this->request->isPost) {
             if ($model->load($this->request->post()) && $model->save()) {
+                $this->notifySubscribers($model);
+
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         } else {
@@ -128,6 +133,28 @@ class BookController extends Controller
         return $this->render('create', [
             'model' => $model,
         ]);
+    }
+
+    /**
+     * Уведомляет подписчиков о появлении новой книги.
+     *
+     * Вызывается после успешного `save()` — значит транзакция уже
+     * закоммитилась и SMS не уйдёт о книге, которой нет.
+     *
+     * Сбои отправки логируются внутри {@see NewBookNotifier} и не
+     * влияют на бизнес-операцию создания книги.
+     *
+     * @param Book $book Свежесозданная книга.
+     *
+     * @return void
+     *
+     * @throws InvalidConfigException Если SmsPilotClient
+     *         не сконфигурирован в DI-контейнере.
+     */
+    private function notifySubscribers(Book $book): void
+    {
+        $client = Yii::$container->get(SmsPilotClient::class);
+        (new NewBookNotifier($client))->notify($book);
     }
 
     /**

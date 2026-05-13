@@ -1,6 +1,7 @@
 <?php
 
 use app\models\User;
+use app\services\SmsPilotClient;
 use yii\caching\FileCache;
 use yii\debug\Module;
 use yii\log\FileTarget;
@@ -25,6 +26,10 @@ $config = [
                 'useFileTransport' => true,
                 'viewPath' => '@app/mail',
             ],
+            SmsPilotClient::class => static fn () => Yii::createObject(array_merge(
+                ['class' => SmsPilotClient::class],
+                Yii::$app->params['smsPilot'],
+            )),
         ],
     ],
     'aliases' => [
