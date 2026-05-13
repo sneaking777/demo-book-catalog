@@ -1,4 +1,4 @@
-# borodina-book-catalog
+# demo-book-catalog
 
 Демо-проект: каталог книг на Yii2 + MySQL.
 
