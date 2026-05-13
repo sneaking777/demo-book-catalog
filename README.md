@@ -8,9 +8,9 @@
 
 ## Стек
 
-- PHP 8.2
+- PHP 8.4
 - Yii2 (basic template)
-- MySQL 8.0
+- MySQL 8.4
 - Docker + Docker Compose
 
 ## Запуск
