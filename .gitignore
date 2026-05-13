@@ -1,0 +1,38 @@
+# phpstorm
+.idea
+
+# netbeans
+nbproject
+
+# eclipse
+.buildpath
+.project
+.settings
+
+# os
+Thumbs.db
+.DS_Store
+
+# composer
+/vendor
+composer.phar
+
+# phpunit
+phpunit.phar
+/phpunit.xml
+clover.xml
+codeception.yml
+
+# build artifacts
+/build
+
+# yii2 runtime / assets / uploads
+/runtime
+/web/assets
+/web/uploads/covers/*
+!/web/uploads/covers/.gitkeep
+
+# local config
+/config/*-local.php
+/.env
+/.env.local
