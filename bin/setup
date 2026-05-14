@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+# Поднимает контейнеры, ставит PHP-зависимости, накатывает миграции
+# и (опционально) заливает тестовые данные. Идемпотентный — повторный
+# запуск переподнимает стек и не ломает уже залитые данные.
+#
+# Использование:
+#   ./bin/setup                — поднять стек + миграции + seed без обложек (быстро, по умолчанию)
+#   ./bin/setup --with-covers  — то же, но с обложками с picsum.photos (медленно, нужен интернет)
+#   ./bin/setup --no-seed      — без сидинга, только миграции
+
+set -euo pipefail
+
+cd "$(dirname "$0")/.."
+
+WITH_COVERS=0
+NO_SEED=0
+
+for arg in "$@"; do
+  case "$arg" in
+    --with-covers) WITH_COVERS=1 ;;
+    --no-seed)     NO_SEED=1 ;;
+    -h|--help)
+      sed -n '2,10p' "$0"
+      exit 0
+      ;;
+    *)
+      echo "Неизвестная опция: $arg" >&2
+      echo "Запустите ./bin/setup --help" >&2
+      exit 1
+      ;;
+  esac
+done
+
+echo "==> Готовлю каталоги для записи (runtime, web/assets, web/uploads)..."
+# 0777 здесь — компромисс ради совместимости: в зависимости от UID-маппинга
+# (стандартный/rootless docker) контейнерный www-data может оказаться не равен
+# хостовому пользователю. Каталоги — dev-артефакты, в .gitignore.
+# Ошибки chmod игнорируем: внутри web/assets могут лежать файлы, созданные
+# www-data контейнера, до которых хост-юзер достучаться не может — это ок,
+# entrypoint контейнера их chown-ит сам при старте.
+mkdir -p runtime web/assets web/uploads/covers
+chmod -R 0777 runtime web/assets web/uploads 2>/dev/null || true
+
+echo "==> Поднимаю контейнеры (app, nginx, mysql)..."
+docker compose up -d --remove-orphans
+
+echo "==> composer install"
+# Без --user www-data: composer уже могли запускать из-под root в entrypoint,
+# и переписать его файлы из-под другого UID не получится.
+docker compose exec -T app composer install --no-interaction --prefer-dist
+
+echo "==> Миграции"
+docker compose exec -T --user www-data app php yii migrate --interactive=0
+
+if [ "$NO_SEED" -eq 1 ]; then
+  echo "==> Сидер пропущен (--no-seed)"
+elif [ "$WITH_COVERS" -eq 1 ]; then
+  echo "==> Сидер: авторы + книги С обложками (медленно — качает с picsum.photos)"
+  docker compose exec -T --user www-data app php yii seed --interactive=0
+else
+  echo "==> Сидер: авторы + книги БЕЗ обложек (быстро)"
+  docker compose exec -T --user www-data app php yii seed --skipCovers=1 --interactive=0
+fi
+
+echo
+echo "Готово. Открывайте http://localhost:8000"
+echo "Логин: admin/admin или demo/demo"
