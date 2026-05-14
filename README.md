@@ -71,6 +71,21 @@ docker compose exec app ./bin/yii seed --skipCovers=1
 | `SMS_PILOT_API_KEY`    | Ключ API smspilot.ru                    |
 | `SMS_PILOT_FROM`       | Alpha-sender (по умолчанию `INFORM`)    |
 
+Чтобы убедиться, что уведомления отрабатывают (особенно на эмуляторе, где реальное SMS никуда не приходит), смотрите в реальном времени:
+
+```bash
+tail -f runtime/logs/app.log | grep -E "SmsPilotClient|NewBookNotifier"
+```
+
+После создания книги в логе появятся строки вида:
+
+```
+[info][app\services\SmsPilotClient::send] SMS принято smspilot (+7912****7890): Новая книга «...» — ...
+[info][app\services\NewBookNotifier::notify] Новая книга «...» (id=42): уведомлено 3 из 3 подписчиков
+```
+
+Сбои отправки (нет связи / API вернул ошибку) логируются с уровнем `warning` в том же файле.
+
 ### Архитектура коротко
 
 - **Контроллеры** (`controllers/`) — тонкие: load → service → render.
