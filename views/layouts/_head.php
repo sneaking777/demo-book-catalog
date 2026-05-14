@@ -38,7 +38,7 @@ if (!empty($this->params['meta_keywords'])) {
 $this->registerLinkTag(
     [
         'rel' => 'icon',
-        'type' => 'image/x-icon',
-        'href' => Yii::getAlias('@web/favicon.ico'),
+        'type' => 'image/svg+xml',
+        'href' => Yii::getAlias('@web/favicon.svg'),
     ],
 );
