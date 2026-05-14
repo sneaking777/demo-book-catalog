@@ -15,4 +15,66 @@
 
 ## Запуск
 
-Будет дополнено после инициализации Yii2 шаблона и Docker-стека.
+Нужны Docker и Docker Compose v2. Одной командой:
+
+```bash
+./bin/setup
+```
+
+Скрипт поднимет контейнеры (`app`, `nginx`, `mysql`), поставит зависимости через `composer install`, накатит миграции и зальёт тестовые данные (без обложек — быстро). Идемпотентен: можно запускать повторно.
+
+Опции:
+
+```bash
+./bin/setup --with-covers   # тестовые данные с обложками с picsum.photos (медленно)
+./bin/setup --no-seed       # без сидинга, только миграции
+./bin/setup --help          # справка
+```
+
+Если нужно вручную, по шагам:
+
+```bash
+docker compose up -d --remove-orphans
+docker compose exec app composer install
+docker compose exec app ./bin/yii migrate --interactive=0
+docker compose exec app ./bin/yii seed --skipCovers=1
+```
+
+Откройте http://localhost:8000.
+
+### Учётки для входа
+
+| Логин   | Пароль  |
+|---------|---------|
+| `admin` | `admin` |
+| `demo`  | `demo`  |
+
+Гостем (без логина) можно только просматривать каталог и оформлять подписку на нового автора.
+
+### Функциональные адреса
+
+- `/` — главная с переходами в разделы
+- `/book/index` — список книг (поиск, сортировка, пагинация)
+- `/author/index` — список авторов
+- `/author/view?id=<id>` — карточка автора + форма подписки гостя
+- `/report/top-authors?year=YYYY` — топ-10 авторов по числу книг за год
+- `/login` / `/logout` / `/about` / `/contact` — стандартные страницы
+
+### SMS-уведомления
+
+При создании новой книги подписчикам её авторов уходит SMS через [smspilot.ru](https://smspilot.ru). По умолчанию используется тестовый ключ-«эмулятор» — API принимает запрос, но реально не отправляет.
+
+Для реальных отправок задайте переменные окружения перед `docker compose up`:
+
+| Переменная             | Назначение                              |
+|------------------------|-----------------------------------------|
+| `SMS_PILOT_API_KEY`    | Ключ API smspilot.ru                    |
+| `SMS_PILOT_FROM`       | Alpha-sender (по умолчанию `INFORM`)    |
+
+### Архитектура коротко
+
+- **Контроллеры** (`controllers/`) — тонкие: load → service → render.
+- **Модели** (`models/`) — ActiveRecord для книг/авторов/подписок + form-модели `LoginForm`/`ContactForm`.
+- **Сервисы** (`services/`) — бизнес-операции записи (`BookService`, `SubscriptionService`), интеграции (`SmsPilotClient`), use-case-уведомления (`NewBookNotifier`). Резолвятся через DI Yii.
+- **Миграции** (`migrations/`) — схема БД с явными комментариями к колонкам.
+- **Сидер** — `commands/SeedController` (`./bin/yii seed`), идемпотентный.
