@@ -26,10 +26,12 @@ $config = [
                 'useFileTransport' => true,
                 'viewPath' => '@app/mail',
             ],
-            SmsPilotClient::class => static fn () => Yii::createObject(array_merge(
+            // Массивная форма (а не фабрика-callable) — контейнер сам резолвит
+            // через Container::build, без рекурсии в эту же запись.
+            SmsPilotClient::class => array_merge(
                 ['class' => SmsPilotClient::class],
-                Yii::$app->params['smsPilot'],
-            )),
+                $params['smsPilot'],
+            ),
         ],
     ],
     'aliases' => [

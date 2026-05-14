@@ -6,11 +6,10 @@ namespace app\controllers;
 
 use app\models\Book;
 use app\models\BookSearch;
-use app\services\NewBookNotifier;
-use app\services\SmsPilotClient;
+use app\services\BookService;
 use Throwable;
 use Yii;
-use yii\base\InvalidConfigException;
+use yii\base\Module;
 use yii\db\Exception;
 use yii\db\StaleObjectException;
 use yii\filters\AccessControl;
@@ -34,6 +33,21 @@ use yii\web\Response;
  */
 class BookController extends Controller
 {
+    /**
+     * @param string $id Идентификатор контроллера.
+     * @param Module $module Модуль, в котором живёт контроллер.
+     * @param BookService $bookService Сервис записи книг (save + уведомление подписчиков).
+     * @param array<string, mixed> $config Доп. конфиг, прокидывается в `Component::__construct`.
+     */
+    public function __construct(
+        $id,
+        $module,
+        private readonly BookService $bookService,
+        array $config = [],
+    ) {
+        parent::__construct($id, $module, $config);
+    }
+
     /**
      * Возвращает список поведений контроллера.
      *
@@ -108,11 +122,12 @@ class BookController extends Controller
 
     /**
      * Создаёт новую книгу. При успешном сохранении делает редирект
-     * на страницу просмотра.
+     * на страницу просмотра. Уведомления подписчикам и прочая бизнес-обвязка
+     * — внутри {@see BookService::create()}.
      *
      * @return Response|string Response при успешном сохранении, HTML формы — иначе.
      *
-     * @throws Exception|InvalidConfigException При сбое уровня БД во время сохранения.
+     * @throws Exception При сбое уровня БД во время сохранения.
      *
      * @noinspection PhpUnused — вызывается Yii-роутером по имени экшена
      */
@@ -121,9 +136,7 @@ class BookController extends Controller
         $model = new Book();
 
         if ($this->request->isPost) {
-            if ($model->load($this->request->post()) && $model->save()) {
-                $this->notifySubscribers($model);
-
+            if ($model->load($this->request->post()) && $this->bookService->create($model)) {
                 return $this->redirect(['view', 'id' => $model->id]);
             }
         } else {
@@ -136,28 +149,6 @@ class BookController extends Controller
     }
 
     /**
-     * Уведомляет подписчиков о появлении новой книги.
-     *
-     * Вызывается после успешного `save()` — значит транзакция уже
-     * закоммитилась и SMS не уйдёт о книге, которой нет.
-     *
-     * Сбои отправки логируются внутри {@see NewBookNotifier} и не
-     * влияют на бизнес-операцию создания книги.
-     *
-     * @param Book $book Свежесозданная книга.
-     *
-     * @return void
-     *
-     * @throws InvalidConfigException Если SmsPilotClient
-     *         не сконфигурирован в DI-контейнере.
-     */
-    private function notifySubscribers(Book $book): void
-    {
-        $client = Yii::$container->get(SmsPilotClient::class);
-        (new NewBookNotifier($client))->notify($book);
-    }
-
-    /**
      * Обновляет данные существующей книги. При успешном сохранении
      * делает редирект на страницу просмотра.
      *
@@ -167,6 +158,7 @@ class BookController extends Controller
      *
      * @throws NotFoundHttpException Если книга с таким id не найдена.
      * @throws Exception При сбое уровня БД во время сохранения.
+     * @throws Throwable Прочие непредвиденные сбои.
      *
      * При параллельном редактировании другим пользователем
      * {@see StaleObjectException} перехватывается локально и
@@ -180,7 +172,7 @@ class BookController extends Controller
 
         if ($this->request->isPost && $model->load($this->request->post())) {
             try {
-                if ($model->save()) {
+                if ($this->bookService->update($model)) {
                     return $this->redirect(['view', 'id' => $model->id]);
                 }
             } catch (StaleObjectException) {

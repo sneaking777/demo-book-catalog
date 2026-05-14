@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace app\controllers;
 
 use app\models\Subscription;
+use app\services\SubscriptionService;
 use Yii;
+use yii\base\Module;
 use yii\db\Exception;
 use yii\filters\VerbFilter;
 use yii\web\Controller;
@@ -26,6 +28,21 @@ use yii\web\Response;
  */
 class SubscriptionController extends Controller
 {
+    /**
+     * @param string $id Идентификатор контроллера.
+     * @param Module $module Модуль, в котором живёт контроллер.
+     * @param SubscriptionService $subscriptions Сервис оформления подписок.
+     * @param array<string, mixed> $config Доп. конфиг, прокидывается в `Component::__construct`.
+     */
+    public function __construct(
+        $id,
+        $module,
+        private readonly SubscriptionService $subscriptions,
+        array $config = [],
+    ) {
+        parent::__construct($id, $module, $config);
+    }
+
     /**
      * Возвращает список поведений контроллера.
      *
@@ -76,7 +93,7 @@ class SubscriptionController extends Controller
 
         $authorId = $model->author_id;
 
-        if ($model->save()) {
+        if ($this->subscriptions->subscribe($model)) {
             $session->setFlash(
                 'success',
                 'Вы подписаны на новые книги этого автора. SMS придёт на указанный номер.',
