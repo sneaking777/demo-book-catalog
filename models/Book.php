@@ -292,7 +292,7 @@ class Book extends ActiveRecord
             return false;
         }
 
-        if ($this->coverFile !== null) {
+        if ($this->coverFile instanceof UploadedFile) {
             $extension = strtolower($this->coverFile->extension);
             $this->cover_image = Yii::$app->security->generateRandomString(16) . '.' . $extension;
         }
@@ -337,7 +337,7 @@ class Book extends ActiveRecord
                 ->execute();
         }
 
-        if ($this->coverFile !== null) {
+        if ($this->coverFile instanceof UploadedFile) {
             if (!$this->coverFile->saveAs(self::coverPath($this->cover_image))) {
                 throw new RuntimeException('Не удалось сохранить файл обложки на диск.');
             }
