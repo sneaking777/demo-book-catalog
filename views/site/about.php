@@ -4,24 +4,21 @@
 
 use yii\helpers\Html;
 
-$this->title = 'About';
+$this->title = 'О проекте';
 $this->params['breadcrumbs'][] = $this->title;
-$this->params['meta_description'] = 'Learn more about this Yii2-powered application.';
-$this->params['meta_keywords'] = 'yii, yii2, about, php, framework';
+$this->params['meta_description'] = 'О каталоге книг: возможности и устройство приложения.';
 ?>
 <div class="site-about d-flex align-items-center justify-content-center text-center">
     <div class="site-about-content mx-auto">
-        <h1 class="display-6 fw-semibold mb-3">This is the About page.</h1>
+        <h1 class="display-6 fw-semibold mb-3">О проекте</h1>
 
         <p class="text-body-secondary mb-4">
-            You may modify the following file to customize its content:
-            <?php if (YII_DEBUG): ?>
-                <code class="d-block mt-2"><?= __FILE__ ?></code>
-            <?php endif; ?>
+            Это демо-каталог книг и авторов. Карточки с обложками, мультивыбор авторов,
+            подписки гостей на новинки и SMS-уведомления через smspilot.ru.
         </p>
 
         <?= Html::a(
-            'Go to Homepage',
+            'На главную',
             Yii::$app->homeUrl,
             ['class' => 'btn btn-outline-primary btn-lg'],
         ) ?>

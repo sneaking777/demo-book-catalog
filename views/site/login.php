@@ -8,10 +8,9 @@
 use yii\bootstrap5\ActiveForm;
 use yii\bootstrap5\Html;
 
-$this->title = 'Login to your account';
+$this->title = 'Вход в каталог';
 $this->params['breadcrumbs'][] = $this->title;
-$this->params['meta_description'] = 'Log in to access your Yii2 application account.';
-$this->params['meta_keywords'] = 'yii, yii2, login, sign in, authentication';
+$this->params['meta_description'] = 'Вход в каталог книг.';
 $htmlIcon = <<<HTML
 {label}<div class="input-group"><span class="input-group-text" aria-hidden="true">%s</span>{input}</div>{error}{hint}
 HTML;
@@ -21,47 +20,32 @@ $labelOptions = ['class' => 'form-label fw-semibold small'];
     <div class="card border-0 overflow-hidden login-split-card">
         <div class="row g-0">
 
-            <!-- Brand panel -->
             <div class="col-md-5 d-none d-md-flex login-brand-panel text-white">
                 <div class="d-flex flex-column justify-content-between p-4 p-lg-5 w-100">
-                    <div>
-                        <?= Html::img(
-                            Yii::getAlias('@web/images/yii3_full_white_for_dark.svg'),
-                            [
-                                'alt' => 'Yii Framework',
-                                'class' => 'mb-4',
-                                'height' => 40,
-                            ],
-                        ) ?>
+                    <div class="brand-mark fw-bold">
+                        <span class="brand-mark-icon" aria-hidden="true">&#128218;</span>
+                        <span class="ms-2"><?= Html::encode(Yii::$app->name) ?></span>
                     </div>
                     <div>
                         <h2 class="fw-bold mb-3 login-brand-title">
-                            Welcome<br>Back
+                            С возвращением
                         </h2>
                         <p class="opacity-75 mb-0 login-brand-text">
-                            Log in to access your Yii2 application and manage your account.
+                            Войдите, чтобы управлять книгами, авторами и рассылками каталога.
                         </p>
                     </div>
                 </div>
             </div>
 
-            <!-- Form panel -->
             <div class="col-md-7">
                 <div class="p-4 p-lg-5">
                     <div class="text-center mb-4">
-                        <!-- Mobile-only logo -->
-                        <div class="d-md-none mb-3">
-                            <?= Html::img(
-                                Yii::getAlias('@web/images/yii3_full_black_for_light.svg'),
-                                [
-                                    'alt' => 'Yii Framework',
-                                    'class' => 'login-mobile-logo',
-                                    'height' => 36,
-                                ],
-                            ) ?>
+                        <div class="d-md-none mb-3 brand-mark fw-bold fs-5">
+                            <span aria-hidden="true">&#128218;</span>
+                            <span class="ms-2"><?= Html::encode(Yii::$app->name) ?></span>
                         </div>
                         <h1 class="h3 fw-bold mb-1"><?= Html::encode($this->title) ?></h1>
-                        <p class="text-body-secondary small">Enter your credentials to continue</p>
+                        <p class="text-body-secondary small">Введите учётные данные для продолжения</p>
                     </div>
 
                     <?php $form = ActiveForm::begin(['id' => 'login-form']); ?>
@@ -72,10 +56,10 @@ $labelOptions = ['class' => 'form-label fw-semibold small'];
                             'template' => sprintf($htmlIcon, '&#128100;'),
                             'inputOptions' => [
                                 'class' => 'form-control',
-                                'placeholder' => 'username',
+                                'placeholder' => 'Логин',
                                 'autofocus' => true,
                             ],
-                        ])->textInput()->label('Your Username', $labelOptions) ?>
+                        ])->textInput()->label('Логин', $labelOptions) ?>
                     </div>
 
                     <div class="mb-3">
@@ -84,9 +68,9 @@ $labelOptions = ['class' => 'form-label fw-semibold small'];
                             'template' => sprintf($htmlIcon, '&#128274;'),
                             'inputOptions' => [
                                 'class' => 'form-control',
-                                'placeholder' => 'Password',
+                                'placeholder' => 'Пароль',
                             ],
-                        ])->passwordInput()->label('Your Password', $labelOptions) ?>
+                        ])->passwordInput()->label('Пароль', $labelOptions) ?>
                     </div>
 
                     <div class="mb-4">
@@ -95,7 +79,7 @@ $labelOptions = ['class' => 'form-label fw-semibold small'];
 
                     <div class="d-grid">
                         <?= Html::submitButton(
-                            'Login',
+                            'Войти',
                             [
                                 'class' => 'btn login-btn btn-lg rounded-3 text-white',
                                 'name' => 'login-button',
@@ -106,8 +90,7 @@ $labelOptions = ['class' => 'form-label fw-semibold small'];
                     <?php ActiveForm::end(); ?>
 
                     <div class="text-body-secondary text-center mt-3 small">
-                        You may login with <strong>admin/admin</strong> or <strong>demo/demo</strong>.<br>
-                        To modify the username/password, check <code>app\models\User::$users</code>.
+                        Демо-доступ: <strong>admin/admin</strong> или <strong>demo/demo</strong>.
                     </div>
 
                 </div>

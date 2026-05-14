@@ -12,6 +12,7 @@ use yii\filters\AccessControl;
 use yii\filters\VerbFilter;
 use yii\base\Security;
 use yii\mail\MailerInterface;
+use yii\helpers\Url;
 use yii\web\Controller;
 use yii\web\ErrorAction;
 use yii\web\Response;
@@ -78,7 +79,31 @@ class SiteController extends Controller
      */
     public function actionIndex(): string
     {
-        return $this->render('index');
+        $cards = [
+            [
+                'icon' => '&#128218;',
+                'title' => 'Книги',
+                'text' => 'Полный список изданий с обложками, годом выпуска и авторами. Поиск, сортировка, мультивыбор авторов в форме.',
+                'url' => Url::to(['/book/index']),
+                'cta' => 'К книгам',
+            ],
+            [
+                'icon' => '&#9997;',
+                'title' => 'Авторы',
+                'text' => 'Карточки авторов с биографией и библиографией. Подписывайтесь на новинки конкретного автора без регистрации.',
+                'url' => Url::to(['/author/index']),
+                'cta' => 'К авторам',
+            ],
+            [
+                'icon' => '&#128202;',
+                'title' => 'Топ-10 авторов',
+                'text' => 'Готовый отчёт: авторы, у которых больше всего книг в каталоге за выбранный период.',
+                'url' => Url::to(['/report/top-authors']),
+                'cta' => 'Открыть отчёт',
+            ],
+        ];
+
+        return $this->render('index', ['cards' => $cards]);
     }
 
     /**

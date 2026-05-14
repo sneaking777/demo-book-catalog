@@ -1,3 +1,11 @@
+:root {
+    --brand-grad-start: #1e3a8a;
+    --brand-grad-mid:   #5b21b6;
+    --brand-grad-end:   #be185d;
+    --brand-grad: linear-gradient(135deg, var(--brand-grad-start) 0%, var(--brand-grad-mid) 50%, var(--brand-grad-end) 100%);
+    --brand-btn-grad: linear-gradient(135deg, #4f46e5, #7c3aed);
+}
+
 main > .container {
     padding: 70px 15px 20px;
     display: flex;
@@ -74,12 +82,6 @@ a.desc:after {
 .navbar-nav .nav-link.logout:hover {
     color: var(--bs-navbar-hover-color);
 }
-
-/* footer logo: light logo by default (light bg-body-tertiary), dark logo for dark theme */
-.footer-logo-dark { display: none; }
-
-[data-bs-theme="dark"] .footer-logo-light { display: none; }
-[data-bs-theme="dark"] .footer-logo-dark  { display: inline-block; }
 
 /* login inputs: seamless icon inside input (Volt style) */
 .login-split-card .input-group {
@@ -170,7 +172,7 @@ a.desc:after {
 }
 
 .login-brand-panel {
-    background: linear-gradient(135deg, #40B3D8 0%, #3a9cbd 40%, #83C933 100%);
+    background: var(--brand-grad);
     position: relative;
     min-height: 480px;
 }
@@ -180,13 +182,13 @@ a.desc:after {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(circle at 20% 80%, rgba(241, 138, 42, .25) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(131, 201, 51, .2) 0%, transparent 40%);
+        radial-gradient(circle at 20% 80%, rgba(244, 114, 182, .25) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(129, 140, 248, .2) 0%, transparent 40%);
     pointer-events: none;
 }
 
 .login-btn {
-    background: linear-gradient(135deg, #40B3D8, #3a9cbd);
+    background: var(--brand-btn-grad);
     border: none;
     font-weight: 600;
     letter-spacing: .02em;
@@ -208,8 +210,16 @@ a.desc:after {
     box-shadow: 0 0 0 1px var(--bs-border-color), 0 4px 24px rgba(0, 0, 0, .4);
 }
 
-[data-bs-theme="dark"] .login-mobile-logo {
-    filter: invert(1);
+/* brand mark inside login/contact panels */
+.brand-mark {
+    display: inline-flex;
+    align-items: center;
+    letter-spacing: .01em;
+}
+
+.brand-mark-icon {
+    font-size: 1.5rem;
+    line-height: 1;
 }
 
 /* contact form textarea height */
@@ -272,20 +282,12 @@ a.desc:after {
 
 /* hero banner */
 .hero-banner {
-    background: linear-gradient(135deg, #83C933 0%, #3a9cbd 40%, #40B3D8 100%);
+    background: var(--brand-grad);
     position: relative;
 }
 
 .hero-lead {
     max-width: 520px;
-}
-
-.hero-logo {
-    height: 120px;
-    opacity: .45;
-    right: 2.5rem;
-    top: 50%;
-    transform: translateY(-50%);
 }
 
 .hero-banner::before {
@@ -294,9 +296,9 @@ a.desc:after {
     inset: 0;
     border-radius: inherit;
     background:
-        radial-gradient(circle at 15% 85%, rgba(241, 138, 42, .3) 0%, transparent 45%),
-        radial-gradient(circle at 85% 15%, rgba(131, 201, 51, .25) 0%, transparent 40%),
-        radial-gradient(ellipse at 50% 50%, rgba(64, 179, 216, .15) 0%, transparent 60%);
+        radial-gradient(circle at 15% 85%, rgba(244, 114, 182, .3) 0%, transparent 45%),
+        radial-gradient(circle at 85% 15%, rgba(129, 140, 248, .25) 0%, transparent 40%),
+        radial-gradient(ellipse at 50% 50%, rgba(124, 58, 237, .15) 0%, transparent 60%);
     pointer-events: none;
 }
 
