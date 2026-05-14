@@ -66,6 +66,13 @@ $config = [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
             'rules' => [
+                // При изменении синхронизировать с app\controllers\SiteController::ALIASED_ACTIONS,
+                // которая 301-редиректит /site/<action> на эти короткие URL.
+                ''        => 'site/index',
+                'login'   => 'site/login',
+                'logout'  => 'site/logout',
+                'about'   => 'site/about',
+                'contact' => 'site/contact',
             ],
         ],
     ],
