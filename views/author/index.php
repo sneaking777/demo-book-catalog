@@ -3,6 +3,7 @@
 /** @noinspection PhpUnhandledExceptionInspection — исключения из шаблонов обрабатывает yii\web\ErrorHandler */
 
 use app\models\Author;
+use yii\bootstrap5\LinkPager;
 use yii\helpers\Html;
 use yii\helpers\Url;
 use yii\grid\ActionColumn;
@@ -28,6 +29,14 @@ $this->params['breadcrumbs'][] = $this->title;
     <?= GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
+        'summary' => '<div class="text-body-secondary small mb-2">Показано <b>{begin}–{end}</b> из <b>{totalCount}</b></div>',
+        'pager' => [
+            'class' => LinkPager::class,
+            'options' => ['class' => 'd-flex justify-content-center mt-3'],
+            'maxButtonCount' => 7,
+            'firstPageLabel' => '«',
+            'lastPageLabel' => '»',
+        ],
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
 
