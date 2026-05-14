@@ -277,7 +277,7 @@ class SiteController extends Controller
         if ($contact) {
             Yii::$app->session->setFlash(
                 'success',
-                'Thank you for contacting us. We will respond to you as soon as possible.',
+                'Спасибо за обращение! Мы ответим вам в ближайшее время.',
             );
 
             return $this->refresh();

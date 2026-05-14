@@ -33,12 +33,20 @@ class ContactForm extends Model
     }
 
     /**
-     * @return array customized attribute labels
+     * Возвращает человекочитаемые названия атрибутов формы.
+     * Используются ядром Yii в сообщениях валидации
+     * (например, «Необходимо заполнить «E-mail»»).
+     *
+     * @return array<string, string>
      */
     public function attributeLabels(): array
     {
         return [
-            'verifyCode' => 'Verification Code',
+            'name' => 'Имя',
+            'email' => 'E-mail',
+            'subject' => 'Тема',
+            'body' => 'Сообщение',
+            'verifyCode' => 'Код проверки',
         ];
     }
 
