@@ -8,7 +8,7 @@ return [
         // По умолчанию — тестовый ключ smspilot.ru («эмулятор»):
         // сообщения принимаются API, но реально не отправляются.
         // Для прода переопределить через переменную окружения SMS_PILOT_API_KEY.
-        'apiKey' => getenv('SMS_PILOT_API_KEY') ?: 'XXXXXXXXXXXXYYYYYYYYYYYYZZZZZZZZ',
+        'apiKey' => getenv('SMS_PILOT_API_KEY') ?: 'XXXXXXXXXXXXYYYYYYYYYYYYZZZZZZZZXXXXXXXXXXXXYYYYYYYYYYYYZZZZZZZZ',
         // Имя отправителя (alpha-sender). На тестовом ключе игнорируется.
         'from' => getenv('SMS_PILOT_FROM') ?: 'INFORM',
         // HTTP-эндпоинт API v1.

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace app\services;
 
 use app\models\Book;
+use Yii;
 use yii\db\Query;
 use yii\helpers\Url;
 
@@ -43,6 +44,7 @@ readonly class NewBookNotifier
     {
         $phones = $this->collectPhones($book);
         if ($phones === []) {
+            Yii::info("Новая книга «{$book->title}» (id=$book->id): подписчиков нет", __METHOD__);
             return 0;
         }
 
@@ -53,6 +55,11 @@ readonly class NewBookNotifier
                 $sent++;
             }
         }
+
+        Yii::info(
+            "Новая книга «{$book->title}» (id=$book->id): уведомлено $sent из " . count($phones) . " подписчиков",
+            __METHOD__,
+        );
 
         return $sent;
     }

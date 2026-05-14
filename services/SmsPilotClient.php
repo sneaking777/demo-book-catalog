@@ -95,6 +95,30 @@ class SmsPilotClient extends BaseObject
             return false;
         }
 
+        Yii::info(
+            "SMS принято smspilot (" . $this->maskPhone($phone) . "): " . mb_substr($message, 0, 60),
+            __METHOD__,
+        );
+
         return true;
+    }
+
+    /**
+     * Маскирует середину телефона для безопасного логирования —
+     * чтобы в `runtime/logs/app.log` не утекал полный номер подписчика.
+     *
+     * @param string $phone Номер в любом формате; маскируются все цифры
+     *                      кроме первых 4 и последних 4.
+     *
+     * @return string Например, `+7912****7890`.
+     */
+    private function maskPhone(string $phone): string
+    {
+        $len = strlen($phone);
+        if ($len <= 8) {
+            return $phone;
+        }
+
+        return substr($phone, 0, 4) . str_repeat('*', $len - 8) . substr($phone, -4);
     }
 }

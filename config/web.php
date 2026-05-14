@@ -59,7 +59,9 @@ $config = [
             'targets' => [
                 [
                     'class' => FileTarget::class,
-                    'levels' => ['error', 'warning'],
+                    // info — чтобы успехи отправки SMS подписчикам тоже попадали
+                    // в runtime/logs/app.log (см. NewBookNotifier / SmsPilotClient).
+                    'levels' => ['error', 'warning', 'info'],
                 ],
             ],
         ],
